@@ -4,6 +4,7 @@ import { HeroSection } from './components/v0/hero-section';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ResetPassword from './pages/ResetPassword';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -12,12 +13,13 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            {/* Rota principal: Quando estiver no "/" mostra a HeroSection */}
             <Route index element={<HeroSection />} />
-
-            {/* Outras rotas */}
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+
+            {/* Nova rota para redefinição de senha */}
+            <Route path="reset-password" element={<ResetPassword />} />
+
             <Route
               path="dashboard"
               element={

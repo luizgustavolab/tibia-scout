@@ -16,9 +16,11 @@ import {
   ShieldAlert,
   Clock,
   ScrollText,
+  Newspaper,
+  Users,
+  Gavel,
 } from 'lucide-react';
 
-// Interface para evitar o erro de "any" do ESLint
 interface SearchHistory {
   id: string;
   query: string;
@@ -33,7 +35,6 @@ export default function Dashboard() {
   const [searchResult, setSearchResult] = useState<string | null>(null);
   const [history, setHistory] = useState<SearchHistory[]>([]);
 
-  // Função para buscar o histórico no Supabase
   async function fetchHistory() {
     try {
       const { data, error } = await supabase
@@ -49,7 +50,6 @@ export default function Dashboard() {
     }
   }
 
-  // Carrega o histórico ao montar o componente
   useEffect(() => {
     fetchHistory();
   }, []);
@@ -96,9 +96,8 @@ export default function Dashboard() {
       if (error) throw error;
 
       setSearchResult(nameToSearch);
-      setCharName(''); // Limpa o input
-      fetchHistory(); // Atualiza a lista instantaneamente
-      console.log('Busca salva no histórico com sucesso!');
+      setCharName('');
+      fetchHistory();
     } catch (error) {
       console.error('Erro ao salvar busca:', error);
       alert('Ocorreu um erro ao salvar sua pesquisa no banco de dados.');
@@ -106,50 +105,90 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f5e6c8] space-y-8 p-6 lg:p-10 bg-[url('/wallpaper.jpg')] bg-fixed bg-cover bg-center">
-      <div className="fixed inset-0 bg-black/80 -z-10" />
+    <div className="min-h-screen bg-transparent text-[#f5e6c8] space-y-8 p-6 lg:p-10 px-8 lg:px-12 relative overflow-x-hidden">
+      <div
+        className="fixed inset-0 bg-[url('/wallpaper2.jpg')] bg-fixed bg-cover bg-center -z-20 scale-100 opacity-80"
+        aria-hidden="true"
+      />
+      <div className="fixed inset-0 bg-black/30 -z-10" />
 
-      {/* Header */}
-      <div className="flex justify-between items-center border-b border-[#d4af37]/20 pb-6">
+      <div className="flex justify-between items-center border-b border-[#d4af37]/20 pb-6 pr-6">
         <div>
           <h2 className="font-medieval text-4xl tracking-wide text-[#d4af37]">
             Dashboard
           </h2>
           <p className="text-sm text-[#c4b08a]/60">Bem-vindo, explorador.</p>
         </div>
-        <div className="w-32">
+        <div className="w-32 flex justify-end pr-2">
           <GlassButton variant="secondary" onClick={handleLogout}>
             Sair
           </GlassButton>
         </div>
       </div>
 
-      {/* Formulário de Busca */}
-      <section className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-6 px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <a
+            href="https://www.tibia.com/news/?subtopic=latestnews"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <GlassButton
+              variant="secondary"
+              className="flex items-center gap-2 py-2 w-full"
+            >
+              <Newspaper className="h-4 w-4 text-[#d4af37]" /> News
+            </GlassButton>
+          </a>
+          <a
+            href="https://www.tibia.com/community/?subtopic=characters"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <GlassButton
+              variant="secondary"
+              className="flex items-center gap-2 py-2 w-full"
+            >
+              <Users className="h-4 w-4 text-[#d4af37]" /> Community
+            </GlassButton>
+          </a>
+          <a
+            href="https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <GlassButton
+              variant="secondary"
+              className="flex items-center gap-2 py-2 w-full"
+            >
+              <Gavel className="h-4 w-4 text-[#d4af37]" /> Bazaar
+            </GlassButton>
+          </a>
+        </div>
+
         <form
           onSubmit={handleSearch}
-          className="flex flex-col sm:flex-row gap-4 bg-black/40 backdrop-blur-md p-6 rounded-xl border border-[#d4af37]/30 shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+          className="flex flex-col sm:flex-row gap-4 bg-black/40 backdrop-blur-md p-6 pr-8 rounded-xl border border-[#d4af37]/30 shadow-[0_0_15px_rgba(212,175,55,0.1)] w-full box-border"
         >
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#d4af37]/50" />
+          <div className="relative flex-1 flex items-center">
+            <Search className="absolute left-3 h-4 w-4 text-[#d4af37]/50 pointer-events-none z-10" />
             <Input
               placeholder="Ex: Eternal Oblivion..."
               value={charName}
               onChange={(e) => setCharName(e.target.value)}
-              className="pl-10 bg-black/60 border-[#d4af37]/20 text-[#f5e6c8] focus:border-[#d4af37] transition-colors"
+              className="pl-10 bg-black/60 border-[#d4af37]/20 text-[#f5e6c8] focus:border-[#d4af37] transition-colors w-full h-10"
             />
           </div>
-          <div className="sm:w-40">
-            <GlassButton variant="primary" type="submit">
+          <div className="sm:w-44 flex-shrink-0">
+            <GlassButton variant="primary" type="submit" className="w-full">
               Pesquisar
             </GlassButton>
           </div>
         </form>
-      </section>
+      </div>
 
-      {/* Exibição do Resultado Atual */}
       {searchResult && (
-        <div className="animate-fade-in-up">
+        <div className="animate-fade-in-up px-2">
           <Card className="max-w-2xl mx-auto bg-black/60 border-[#d4af37]/40 backdrop-blur-md overflow-hidden">
             <CardHeader className="bg-[#d4af37]/10 border-b border-[#d4af37]/20">
               <CardTitle className="flex items-center gap-2 text-[#d4af37]">
@@ -175,87 +214,61 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {[
-          {
-            title: 'Buscas Realizadas',
-            value: history.length.toString(),
-            color: 'text-[#d4af37]',
-          },
-          { title: 'Alertas Ativos', value: '3', color: 'text-red-500' },
-          { title: 'Status do Banco', value: 'Online', color: 'text-blue-400' },
-        ].map((item, i) => (
-          <Card
-            key={i}
-            className="bg-black/40 border-[#d4af37]/20 backdrop-blur-sm border"
-          >
-            <CardHeader>
-              <CardTitle className="text-xs uppercase tracking-tighter text-[#c4b08a]/70">
-                {item.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-3xl font-bold ${item.color}`}>
-                {item.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* TABELA DE HISTÓRICO */}
-      <Card className="bg-black/40 border-[#d4af37]/20 backdrop-blur-sm border">
-        <CardHeader className="border-b border-[#d4af37]/10">
-          <CardTitle className="flex items-center gap-2 text-[#d4af37] font-medieval tracking-widest">
-            <ScrollText className="h-5 w-5" />
-            Últimas Consultas
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#d4af37]/10 bg-[#d4af37]/5 text-[#c4b08a] text-xs uppercase">
-                  <th className="p-4">Personagem</th>
-                  <th className="p-4">Data/Hora</th>
-                  <th className="p-4 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.length > 0 ? (
-                  history.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b border-[#d4af37]/5 hover:bg-white/5 transition-colors"
-                    >
-                      <td className="p-4 font-bold text-white">{item.query}</td>
-                      <td className="p-4 text-sm text-[#c4b08a]/60 flex items-center gap-2">
-                        <Clock className="h-3 w-3" />
-                        {new Date(item.created_at).toLocaleString('pt-BR')}
-                      </td>
-                      <td className="p-4 text-right">
-                        <span className="px-2 py-1 rounded-full text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 uppercase tracking-tighter">
-                          {item.status}
-                        </span>
+      <div className="px-2">
+        <Card className="bg-black/40 border-[#d4af37]/20 backdrop-blur-sm border">
+          <CardHeader className="border-b border-[#d4af37]/10">
+            <CardTitle className="flex items-center gap-2 text-[#d4af37] font-medieval tracking-widest">
+              <ScrollText className="h-5 w-5" />
+              Últimas Consultas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#d4af37]/10 bg-[#d4af37]/5 text-[#c4b08a] text-xs uppercase">
+                    <th className="p-4">Personagem</th>
+                    <th className="p-4">Data/Hora</th>
+                    <th className="p-4 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.length > 0 ? (
+                    history.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-[#d4af37]/5 hover:bg-white/5 transition-colors"
+                      >
+                        <td className="p-4 font-bold text-white">
+                          {item.query}
+                        </td>
+                        <td className="p-4 text-sm text-[#c4b08a]/60 flex items-center gap-2">
+                          <Clock className="h-3 w-3" />
+                          {new Date(item.created_at).toLocaleString('pt-BR')}
+                        </td>
+                        <td className="p-4 text-right">
+                          <span className="px-2 py-1 rounded-full text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 uppercase tracking-tighter">
+                            {item.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="p-10 text-center text-[#c4b08a]/40 italic"
+                      >
+                        Nenhum histórico de busca encontrado.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={3}
-                      className="p-10 text-center text-[#c4b08a]/40 italic"
-                    >
-                      Nenhum histórico de busca encontrado.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
