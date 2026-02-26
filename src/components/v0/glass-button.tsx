@@ -8,14 +8,15 @@ interface GlassButtonProps {
   children: React.ReactNode;
   variant: 'primary' | 'secondary';
   onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset'; // Adicionada a prop type
 }
 
-export function GlassButton({ children, variant, onClick }: GlassButtonProps) {
+export function GlassButton({ children, variant, onClick, type = 'button' }: GlassButtonProps) {
   const isPrimary = variant === 'primary';
 
   return (
     <button
-      type="button"
+      type={type} // Agora ele aceita o type que vier por fora (como o "submit" do Dashboard)
       onClick={onClick}
       className={cn(
         'group relative flex min-w-[180px] items-center justify-center gap-3 overflow-hidden rounded-lg px-8 py-4 font-medieval text-lg tracking-wider transition-all duration-300 sm:min-w-[200px] sm:px-10 sm:py-4 sm:text-xl',

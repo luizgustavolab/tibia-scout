@@ -1,22 +1,25 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { GlassButton } from '../components/v0/glass-button';
+import { Input } from '../components/v0/ui/input';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '../components/v0/ui/card';
-import { Button } from '../components/v0/ui/button'; // Usando o caminho que você já tinha
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { Search, User, Swords, ShieldAlert } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [charName, setCharName] = useState('');
+  const [searchResult, setSearchResult] = useState<string | null>(null);
 
   async function handleLogout() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-
-      // Redireciona para a página inicial (HeroSection)
       navigate('/');
     } catch (error) {
       console.error('Erro ao sair:', error);
@@ -24,48 +27,122 @@ export default function Dashboard() {
     }
   }
 
+  // Função de busca com validação rigorosa contra campos vazios
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+
+    const nameToSearch = charName.trim();
+
+    if (!nameToSearch) {
+      alert('Por favor, digite o nome de um personagem.');
+      setSearchResult(null); // Garante que não mostre resultados antigos
+      return;
+    }
+
+    setSearchResult(nameToSearch);
+  }
+
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <Button variant="destructive" onClick={handleLogout}>
-          Sair
-        </Button>
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f5e6c8] space-y-8 p-6 lg:p-10 bg-[url('/wallpaper.jpg')] bg-fixed bg-cover bg-center">
+      <div className="fixed inset-0 bg-black/80 -z-10" />
+
+      {/* Header */}
+      <div className="flex justify-between items-center border-b border-[#d4af37]/20 pb-6">
+        <div>
+          <h2 className="font-medieval text-4xl tracking-wide text-[#d4af37]">
+            Dashboard
+          </h2>
+          <p className="text-sm text-[#c4b08a]/60">Bem-vindo, explorador.</p>
+        </div>
+        <div className="w-32">
+          <GlassButton variant="secondary" onClick={handleLogout}>
+            Sair
+          </GlassButton>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Personagens Monitorados
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-          </CardContent>
-        </Card>
+      {/* Formulário de Busca */}
+      <section className="max-w-2xl mx-auto">
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-col sm:flex-row gap-4 bg-black/40 backdrop-blur-md p-6 rounded-xl border border-[#d4af37]/30 shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+        >
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#d4af37]/50" />
+            <Input
+              placeholder="Ex: Eternal Oblivion..."
+              value={charName}
+              onChange={(e) => setCharName(e.target.value)}
+              className="pl-10 bg-black/60 border-[#d4af37]/20 text-[#f5e6c8] focus:border-[#d4af37] transition-colors"
+            />
+          </div>
+          <div className="sm:w-40">
+            <GlassButton variant="primary" type="submit">
+              Pesquisar
+            </GlassButton>
+          </div>
+        </form>
+      </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Alertas Ativos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">3</div>
-          </CardContent>
-        </Card>
+      {/* Exibição do Resultado */}
+      {searchResult && (
+        <div className="animate-fade-in-up">
+          <Card className="max-w-2xl mx-auto bg-black/60 border-[#d4af37]/40 backdrop-blur-md overflow-hidden">
+            <CardHeader className="bg-[#d4af37]/10 border-b border-[#d4af37]/20">
+              <CardTitle className="flex items-center gap-2 text-[#d4af37]">
+                <User className="h-5 w-5" />
+                Resultado da Busca
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 text-center">
+              <p className="text-xl mb-2">Informações de:</p>
+              <h3 className="text-4xl font-medieval text-white mb-4 uppercase tracking-widest">
+                {searchResult}
+              </h3>
+              <div className="flex justify-center gap-6 text-[#c4b08a]">
+                <div className="flex items-center gap-1">
+                  <Swords className="h-4 w-4" /> Level: ??
+                </div>
+                <div className="flex items-center gap-1">
+                  <ShieldAlert className="h-4 w-4" /> Vocation: ??
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Última Verificação
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Há 2 min</div>
-          </CardContent>
-        </Card>
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {[
+          {
+            title: 'Personagens Monitorados',
+            value: '12',
+            color: 'text-[#d4af37]',
+          },
+          { title: 'Alertas Ativos', value: '3', color: 'text-red-500' },
+          {
+            title: 'Última Verificação',
+            value: 'Há 2 min',
+            color: 'text-blue-400',
+          },
+        ].map((item, i) => (
+          <Card
+            key={i}
+            className="bg-black/40 border-[#d4af37]/20 backdrop-blur-sm border"
+          >
+            <CardHeader>
+              <CardTitle className="text-xs uppercase tracking-tighter text-[#c4b08a]/70">
+                {item.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-3xl font-bold ${item.color}`}>
+                {item.value}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
