@@ -19,6 +19,9 @@ import {
   Newspaper,
   Users,
   Gavel,
+  ExternalLink,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 interface SearchHistory {
@@ -34,6 +37,9 @@ export default function Dashboard() {
   const [charName, setCharName] = useState('');
   const [searchResult, setSearchResult] = useState<string | null>(null);
   const [history, setHistory] = useState<SearchHistory[]>([]);
+  const [activeUrl, setActiveUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [iframeBlocked, setIframeBlocked] = useState(false);
 
   async function fetchHistory() {
     try {
@@ -64,6 +70,19 @@ export default function Dashboard() {
       alert('Erro ao deslogar. Tente novamente.');
     }
   }
+
+  const openLink = (url: string) => {
+    // Reset inicial
+    setActiveUrl(url);
+    setIframeBlocked(false);
+    setIsLoading(true);
+
+    // Espera 0.5s mostrando o Loader antes de exibir a mensagem de bloqueio
+    setTimeout(() => {
+      setIframeBlocked(true);
+      setIsLoading(false);
+    }, 500);
+  };
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -128,43 +147,138 @@ export default function Dashboard() {
 
       <div className="max-w-4xl mx-auto space-y-6 px-2">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <a
-            href="https://www.tibia.com/news/?subtopic=latestnews"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <div className="relative group">
             <GlassButton
               variant="secondary"
-              className="flex items-center gap-2 py-2 w-full"
+              className="w-full py-2 px-4"
+              onClick={() =>
+                openLink('https://www.tibia.com/news/?subtopic=latestnews')
+              }
             >
-              <Newspaper className="h-4 w-4 text-[#d4af37]" /> News
+              <div className="flex items-center justify-start w-full gap-3">
+                <Newspaper className="h-5 w-5 text-[#d4af37] shrink-0" />
+                <span className="text-[#c4b08a]">News</span>
+              </div>
             </GlassButton>
-          </a>
-          <a
-            href="https://www.tibia.com/community/?subtopic=characters"
-            target="_blank"
-            rel="noreferrer"
-          >
+            <a
+              href="https://www.tibia.com/news/?subtopic=latestnews"
+              target="_blank"
+              rel="noreferrer"
+              className="absolute top-1 right-1 p-1 text-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
+              title="Abrir em nova aba"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="relative group">
             <GlassButton
               variant="secondary"
-              className="flex items-center gap-2 py-2 w-full"
+              className="w-full py-2 px-4"
+              onClick={() =>
+                openLink('https://www.tibia.com/community/?subtopic=characters')
+              }
             >
-              <Users className="h-4 w-4 text-[#d4af37]" /> Community
+              <div className="flex items-center justify-start w-full gap-3">
+                <Users className="h-5 w-5 text-[#d4af37] shrink-0" />
+                <span className="text-[#c4b08a]">Community</span>
+              </div>
             </GlassButton>
-          </a>
-          <a
-            href="https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades"
-            target="_blank"
-            rel="noreferrer"
-          >
+            <a
+              href="https://www.tibia.com/community/?subtopic=characters"
+              target="_blank"
+              rel="noreferrer"
+              className="absolute top-1 right-1 p-1 text-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
+              title="Abrir em nova aba"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="relative group">
             <GlassButton
               variant="secondary"
-              className="flex items-center gap-2 py-2 w-full"
+              className="w-full py-2 px-4"
+              onClick={() =>
+                openLink(
+                  'https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades',
+                )
+              }
             >
-              <Gavel className="h-4 w-4 text-[#d4af37]" /> Bazaar
+              <div className="flex items-center justify-start w-full gap-3">
+                <Gavel className="h-5 w-5 text-[#d4af37] shrink-0" />
+                <span className="text-[#c4b08a]">Bazaar</span>
+              </div>
             </GlassButton>
-          </a>
+            <a
+              href="https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades"
+              target="_blank"
+              rel="noreferrer"
+              className="absolute top-1 right-1 p-1 text-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
+              title="Abrir em nova aba"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
         </div>
+
+        {activeUrl && (
+          <div className="w-full space-y-4 animate-in fade-in duration-300">
+            <div className="flex justify-between items-center">
+              <a
+                href={activeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 text-[#c4b08a]/60 hover:text-white text-xs underline"
+              >
+                <ExternalLink className="h-3 w-3" /> Abrir em nova aba
+              </a>
+              <button
+                onClick={() => {
+                  setActiveUrl(null);
+                  setIframeBlocked(false);
+                  setIsLoading(false);
+                }}
+                className="text-[#d4af37] hover:text-white text-sm underline"
+              >
+                Fechar Visualização
+              </button>
+            </div>
+            <div className="relative w-full h-[600px] rounded-xl border border-[#d4af37]/30 overflow-hidden bg-black/60 backdrop-blur-md flex flex-col items-center justify-center">
+              {isLoading ? (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+                  <Loader2 className="h-10 w-10 text-[#d4af37] animate-spin" />
+                </div>
+              ) : iframeBlocked ? (
+                <div className="z-30 p-8 text-center space-y-6 max-w-md animate-in fade-in zoom-in duration-200">
+                  <AlertTriangle className="h-16 w-16 text-[#d4af37] mx-auto opacity-80" />
+                  <p className="text-[#c4b08a]/80 text-sm">
+                    O site oficial não permite a visualização interna.
+                  </p>
+                  <a
+                    href={activeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block"
+                  >
+                    <GlassButton variant="primary" className="w-full">
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="h-5 w-5" /> Abrir Site Oficial
+                      </div>
+                    </GlassButton>
+                  </a>
+                </div>
+              ) : (
+                <iframe
+                  key={activeUrl}
+                  src={activeUrl}
+                  className="w-full h-full"
+                  title="Conteúdo Tibia"
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         <form
           onSubmit={handleSearch}
