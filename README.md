@@ -40,3 +40,25 @@ Para que o sistema funcione com o banco de dados e autenticação, você precisa
 ```env
 VITE_SUPABASE_URL=sua_url_do_supabase
 VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+
+---
+
+## 🛠️ Padrão de Commits
+
+Este projeto utiliza o [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) para manter o histórico organizado.
+
+### Formato do Commit:
+`<tipo>: <descrição curta>`
+
+### Tipos Comuns:
+* `feat`: Adição de uma nova funcionalidade.
+* `fix`: Correção de um erro/bug.
+* `docs`: Alterações na documentação (ex: README).
+* `style`: Alterações de estilo ou formatação que não afetam o código.
+* `refactor`: Mudança no código que não corrige erro nem adiciona funcionalidade.
+* `chore`: Atualização de tarefas de build, pacotes ou ferramentas (ex: .gitignore).
+
+### Exemplos:
+* `feat: add character search filters`
+* `fix: resolve iframe white screen flickering`
+* `docs: update setup instructions`
