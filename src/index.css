@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Animações do v0 */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0.2;
+    }
+  }
+
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+  --animate-fade-in-up-delay: fade-in-up 0.5s ease-out 0.2s forwards;
+  --animate-fade-in-up-delay-2: fade-in-up 0.5s ease-out 0.4s forwards;
+  --animate-shimmer: shimmer 3s infinite;
+
+  /* Fontes (Opcional: se quiser a medieval, precisará importar uma) */
+  --font-medieval: 'Cinzel Decorative', serif;
+}
+
+/* Reset básico para não quebrar o layout */
+:root {
+  background-color: #0a0a0a; /* Fundo escuro Tibiano */
+  color: #f5e6c8;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Garante que o App ocupe a tela toda */
+#root {
+  width: 100%;
+}
