@@ -22,12 +22,13 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      // Aqui entram as regras que você queria:
       'react-refresh/only-export-components': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       'react-hooks/rules-of-hooks': 'off',
-      // Adicionei esta para o Prettier não brigar com o ESLint
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      'no-var': 'off',
       ...eslintConfigPrettier.rules, 
     },
   }

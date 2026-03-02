@@ -3,35 +3,30 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 
-interface GlassButtonProps {
+interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant: 'primary' | 'secondary';
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
-  className?: string;
 }
 
 export function GlassButton({
   children,
   variant,
-  onClick,
-  type = 'button',
   className,
+  ...props
 }: GlassButtonProps) {
   const isPrimary = variant === 'primary';
 
   return (
     <button
-      type={type}
-      onClick={onClick}
       className={cn(
         'group relative flex min-w-[180px] items-center justify-center gap-3 overflow-hidden rounded-lg px-8 py-4 font-medieval text-lg tracking-wider transition-all duration-300 sm:min-w-[200px] sm:px-10 sm:py-4 sm:text-xl',
-        'backdrop-blur-xl border',
+        'backdrop-blur-xl border disabled:opacity-50 disabled:cursor-not-allowed',
         isPrimary
           ? 'border-[#d4af37]/40 bg-[#d4af37]/10 text-[#f5e6c8] hover:border-[#d4af37]/70 hover:bg-[#d4af37]/20 hover:text-[#fff8e7] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]'
           : 'border-[#f5e6c8]/20 bg-[#f5e6c8]/5 text-[#c4b08a] hover:border-[#f5e6c8]/40 hover:bg-[#f5e6c8]/10 hover:text-[#f5e6c8] hover:shadow-[0_0_30px_rgba(245,230,200,0.15)]',
         className,
       )}
+      {...props}
     >
       <span
         className={cn(

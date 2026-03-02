@@ -1,13 +1,9 @@
 import type { Config } from 'tailwindcss';
+import tailwindAnimate from 'tailwindcss-animate';
 
 const config: Config = {
-  darkMode: ['class'],
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    '*.{js,ts,jsx,tsx,mdx}',
-  ],
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
@@ -73,46 +69,24 @@ const config: Config = {
       },
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
         'fade-in-up': {
-          '0%': {
-            opacity: '0',
-            transform: 'translateY(30px)',
-          },
-          '100%': {
-            opacity: '1',
-            transform: 'translateY(0)',
-          },
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         shimmer: {
-          '0%, 100%': {
-            opacity: '0.4',
-          },
-          '50%': {
-            opacity: '0.8',
-          },
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.8' },
         },
         'pulse-glow': {
-          '0%, 100%': {
-            boxShadow: '0 0 15px rgba(212, 175, 55, 0.2)',
-          },
-          '50%': {
-            boxShadow: '0 0 30px rgba(212, 175, 55, 0.5)',
-          },
+          '0%, 100%': { boxShadow: '0 0 15px rgba(212, 175, 55, 0.2)' },
+          '50%': { boxShadow: '0 0 30px rgba(212, 175, 55, 0.5)' },
         },
       },
       animation: {
@@ -126,6 +100,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [import('tailwindcss-animate')],
+  plugins: [tailwindAnimate],
 };
+
 export default config;
