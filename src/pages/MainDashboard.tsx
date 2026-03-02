@@ -32,7 +32,7 @@ interface SearchHistory {
   user_id: string;
 }
 
-export default function Dashboard() {
+function MainDashboard() {
   const navigate = useNavigate();
   const [charName, setCharName] = useState('');
   const [searchResult, setSearchResult] = useState<string | null>(null);
@@ -67,17 +67,14 @@ export default function Dashboard() {
       navigate('/');
     } catch (error) {
       console.error('Erro ao sair:', error);
-      alert('Erro ao deslogar. Tente novamente.');
     }
   }
 
   const openLink = (url: string) => {
-    // Reset inicial
     setActiveUrl(url);
     setIframeBlocked(false);
     setIsLoading(true);
 
-    // Espera 0.5s mostrando o Loader antes de exibir a mensagem de bloqueio
     setTimeout(() => {
       setIframeBlocked(true);
       setIsLoading(false);
@@ -88,21 +85,11 @@ export default function Dashboard() {
     e.preventDefault();
     const nameToSearch = charName.trim();
 
-    if (!nameToSearch) {
-      alert('Por favor, digite o nome de um personagem.');
-      setSearchResult(null);
-      return;
-    }
+    if (!nameToSearch) return;
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        alert('Sessão expirada. Por favor, faça login novamente.');
-        return;
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       const { error } = await supabase.from('search_history').insert([
         {
@@ -119,7 +106,6 @@ export default function Dashboard() {
       fetchHistory();
     } catch (error) {
       console.error('Erro ao salvar busca:', error);
-      alert('Ocorreu um erro ao salvar sua pesquisa no banco de dados.');
     }
   }
 
@@ -132,12 +118,7 @@ export default function Dashboard() {
       <div className="fixed inset-0 bg-black/30 -z-10" />
 
       <div className="flex justify-between items-center border-b border-[#d4af37]/20 pb-6 pr-6">
-        <div>
-          <h2 className="font-medieval text-4xl tracking-wide text-[#d4af37]">
-            Dashboard
-          </h2>
-          <p className="text-sm text-[#c4b08a]/60">Bem-vindo, explorador.</p>
-        </div>
+        <div />
         <div className="w-32 flex justify-end pr-2">
           <GlassButton variant="secondary" onClick={handleLogout}>
             Sair
@@ -151,9 +132,7 @@ export default function Dashboard() {
             <GlassButton
               variant="secondary"
               className="w-full py-2 px-4"
-              onClick={() =>
-                openLink('https://www.tibia.com/news/?subtopic=latestnews')
-              }
+              onClick={() => openLink('https://www.tibia.com/news/?subtopic=latestnews')}
             >
               <div className="flex items-center justify-start w-full gap-3">
                 <Newspaper className="h-5 w-5 text-[#d4af37] shrink-0" />
@@ -165,7 +144,6 @@ export default function Dashboard() {
               target="_blank"
               rel="noreferrer"
               className="absolute top-1 right-1 p-1 text-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
-              title="Abrir em nova aba"
             >
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -175,9 +153,7 @@ export default function Dashboard() {
             <GlassButton
               variant="secondary"
               className="w-full py-2 px-4"
-              onClick={() =>
-                openLink('https://www.tibia.com/community/?subtopic=characters')
-              }
+              onClick={() => openLink('https://www.tibia.com/community/?subtopic=characters')}
             >
               <div className="flex items-center justify-start w-full gap-3">
                 <Users className="h-5 w-5 text-[#d4af37] shrink-0" />
@@ -189,7 +165,6 @@ export default function Dashboard() {
               target="_blank"
               rel="noreferrer"
               className="absolute top-1 right-1 p-1 text-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
-              title="Abrir em nova aba"
             >
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -199,11 +174,7 @@ export default function Dashboard() {
             <GlassButton
               variant="secondary"
               className="w-full py-2 px-4"
-              onClick={() =>
-                openLink(
-                  'https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades',
-                )
-              }
+              onClick={() => openLink('https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades')}
             >
               <div className="flex items-center justify-start w-full gap-3">
                 <Gavel className="h-5 w-5 text-[#d4af37] shrink-0" />
@@ -215,7 +186,6 @@ export default function Dashboard() {
               target="_blank"
               rel="noreferrer"
               className="absolute top-1 right-1 p-1 text-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
-              title="Abrir em nova aba"
             >
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -255,12 +225,7 @@ export default function Dashboard() {
                   <p className="text-[#c4b08a]/80 text-sm">
                     O site oficial não permite a visualização interna.
                   </p>
-                  <a
-                    href={activeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block"
-                  >
+                  <a href={activeUrl} target="_blank" rel="noreferrer" className="block">
                     <GlassButton variant="primary" className="w-full">
                       <div className="flex items-center gap-2">
                         <ExternalLink className="h-5 w-5" /> Abrir Site Oficial
@@ -386,3 +351,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default MainDashboard;

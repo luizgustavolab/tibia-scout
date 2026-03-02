@@ -3,7 +3,7 @@ import { Layout } from './components/Layout';
 import { HeroSection } from './components/v0/hero-section';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/MainDashboard';
 import ResetPassword from './pages/ResetPassword';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
