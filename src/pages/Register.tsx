@@ -26,6 +26,10 @@ export default function Register() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          // Ajuste para a sua URL oficial do Vercel
+          emailRedirectTo: 'https://tibia-scout.vercel.app/login',
+        },
       });
 
       if (error) throw error;
