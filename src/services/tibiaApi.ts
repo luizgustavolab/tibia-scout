@@ -41,14 +41,8 @@ export async function getTibiaNews() {
 
 export async function getTibiaBazaar(filters?: BazaarFilters) {
   try {
-    const apiKey = '7b50f45e9846c6a58c8015dd8f0e2104';
-
-    // Mudamos para a visualização de busca (search) que é mais rica em dados do que a home do trade
-    const tibiaUrl =
-      'https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades&search_sort=0';
-
-    // Usamos render=true mas sem o premium para tentar ganhar velocidade,
-    // já que o que importa é o seletor correto agora
+    const apiKey = import.meta.env.VITE_SCRAPER_API_KEY;
+    const tibiaUrl = 'https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades&search_sort=0';
     const scraperUrl = `https://api.scraperapi.com/?api_key=${apiKey}&url=${encodeURIComponent(tibiaUrl)}&render=true`;
 
     const response = await fetch(scraperUrl);
@@ -60,7 +54,6 @@ export async function getTibiaBazaar(filters?: BazaarFilters) {
       const name = $(element).find('.AuctionCharacterName').text().trim();
       if (!name) return;
 
-      // 1. Captura de Skills via Tooltip/Title (Onde o Tibia esconde o dado no Card)
       const skills: any = {
         magic: 0,
         distance: 0,
@@ -71,11 +64,10 @@ export async function getTibiaBazaar(filters?: BazaarFilters) {
         shielding: 0,
       };
 
-      // O Tibia coloca as skills dentro de imagens no container .ShortVocationStuff
       $(element)
         .find('.ShortVocationStuff div img')
         .each((_, img) => {
-          const title = $(img).attr('title') || ''; // Ex: "Axe Fighting: 110"
+          const title = $(img).attr('title') || '';
           const value = parseInt(title.match(/\d+/)?.[0] || '0');
           const lowerTitle = title.toLowerCase();
 
@@ -88,8 +80,6 @@ export async function getTibiaBazaar(filters?: BazaarFilters) {
           if (lowerTitle.includes('shielding')) skills.shielding = value;
         });
 
-      // 2. Fallback: Se o card não tem as imagens, tentamos ler a tabela de "Character Information"
-      // que às vezes é renderizada pelo ScraperAPI
       if (skills.magic === 0 && skills.sword === 0) {
         $(element)
           .find('.AuctionUnitChart')
@@ -97,7 +87,6 @@ export async function getTibiaBazaar(filters?: BazaarFilters) {
             const label = $(chart).find('.Label').text().toLowerCase();
             const value = parseInt($(chart).find('.Value').text()) || 0;
             if (label.includes('magic')) skills.magic = value;
-            // ... (repetiria para as outras skills)
           });
       }
 
@@ -106,17 +95,9 @@ export async function getTibiaBazaar(filters?: BazaarFilters) {
       auctions.push({
         name,
         level: parseInt(headerText.match(/Level:\s*(\d+)/)?.[1] || '0'),
-        vocation:
-          headerText.match(/Vocation:\s*([^|]+)/)?.[1]?.trim() || 'Unknown',
-        world:
-          headerText.match(/World:\s*([^|,\n]+)/)?.[1]?.trim() || 'Unknown',
-        price:
-          parseInt(
-            $(element)
-              .find('.ShortAuctionDataValue b')
-              .text()
-              .replace(/,/g, ''),
-          ) || 0,
+        vocation: headerText.match(/Vocation:\s*([^|]+)/)?.[1]?.trim() || 'Unknown',
+        world: headerText.match(/World:\s*([^|,\n]+)/)?.[1]?.trim() || 'Unknown',
+        price: parseInt($(element).find('.ShortAuctionDataValue b').text().replace(/,/g, '')) || 0,
         outfit_url: $(element).find('.AuctionOutfitImage').attr('src') || '',
         skills: skills,
         auction_end_relative: $(element).find('.AuctionTimer').text().trim(),
