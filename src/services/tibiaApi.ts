@@ -1,26 +1,60 @@
-import * as cheerio from 'cheerio';
+const RAILWAY_API_URL =
+  import.meta.env.VITE_API_URL || 'https://api-production-0422.up.railway.app';
+const TIBIADATA_API_URL = 'https://api.tibiadata.com/v4';
 
 export interface BazaarFilters {
   vocation?: string;
-  pvp_type?: string;
-  battleye?: string;
-  location?: string;
-  min_level?: number;
-  max_level?: number;
-  min_skill?: number;
-  max_skill?: number;
-  skill_type?: string;
-  page?: number;
+  world?: string;
+  minLevel?: number;
+  maxLevel?: number;
+  sort?: string;
+  name?: string;
+}
+
+export interface BazaarCharacter {
+  id: number;
+  name: string;
+  level: number;
+  vocation: string;
+  world: string;
+  outfit_url: string;
+  price: number;
+  auction_end_relative: string;
+  skills: string[];
+  extras: string[];
+  items: any[];
+  auctionId?: number;
+}
+
+export interface BazaarResponse {
+  characters: BazaarCharacter[];
+  metadata: {
+    total: number;
+    page: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
 }
 
 export async function getCharacterData(name: string) {
   try {
     const response = await fetch(
-      `https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`,
+      `${TIBIADATA_API_URL}/character/${encodeURIComponent(name)}`,
     );
-    if (!response.ok) throw new Error(`Erro ${response.status}`);
+    if (!response.ok) return null;
     const data = await response.json();
-    return data?.character?.character || null;
+    if (!data.character?.character) return null;
+    const char = data.character.character;
+    return {
+      name: char.name,
+      level: char.level,
+      vocation: char.vocation,
+      world: char.world,
+      status: char.status,
+      sex: char.sex,
+      achievement_points: char.achievement_points,
+      last_login: char.last_login,
+    };
   } catch (error) {
     console.error(error);
     return null;
@@ -29,7 +63,7 @@ export async function getCharacterData(name: string) {
 
 export async function getTibiaNews() {
   try {
-    const response = await fetch('https://api.tibiadata.com/v4/news/latest');
+    const response = await fetch(`${TIBIADATA_API_URL}/news/latest`);
     if (!response.ok) throw new Error(`Erro ${response.status}`);
     const data = await response.json();
     return (data?.news || []).slice(0, 5);
@@ -39,74 +73,78 @@ export async function getTibiaNews() {
   }
 }
 
-export async function getTibiaBazaar(filters?: BazaarFilters) {
+export async function getTibiaBazaar(
+  filters?: BazaarFilters,
+  page: number = 1,
+): Promise<BazaarResponse> {
   try {
-    const apiKey = import.meta.env.VITE_SCRAPER_API_KEY;
-    const tibiaUrl = 'https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades&search_sort=0';
-    const scraperUrl = `https://api.scraperapi.com/?api_key=${apiKey}&url=${encodeURIComponent(tibiaUrl)}&render=true`;
+    const params = new URLSearchParams();
+    if (filters?.vocation) params.append('vocation', filters.vocation);
+    if (filters?.world) params.append('world', filters.world);
+    if (filters?.name) params.append('name', filters.name);
+    if (filters?.minLevel)
+      params.append('minLevel', filters.minLevel.toString());
+    if (filters?.maxLevel)
+      params.append('maxLevel', filters.maxLevel.toString());
+    if (filters?.sort) params.append('sortBy', filters.sort);
+    params.append('page', page.toString());
 
-    const response = await fetch(scraperUrl);
-    const html = await response.text();
-    const $ = cheerio.load(html);
-    const auctions: any[] = [];
+    const response = await fetch(
+      `${RAILWAY_API_URL}/characters?${params.toString()}`,
+    );
+    if (!response.ok) throw new Error('Falha ao buscar dados no Bazaar');
 
-    $('.Auction').each((_, element) => {
-      const name = $(element).find('.AuctionCharacterName').text().trim();
-      if (!name) return;
+    const result = await response.json();
+    const rawCharacters = Array.isArray(result.data) ? result.data : [];
 
-      const skills: any = {
-        magic: 0,
-        distance: 0,
-        sword: 0,
-        axe: 0,
-        club: 0,
-        fist: 0,
-        shielding: 0,
-      };
+    const mappedCharacters: BazaarCharacter[] = rawCharacters.map(
+      (char: any) => {
+        const auctionEnd = char.endsAt ? parseInt(char.endsAt) : 0;
+        const allSkills = Array.isArray(char.skills) ? char.skills : [];
 
-      $(element)
-        .find('.ShortVocationStuff div img')
-        .each((_, img) => {
-          const title = $(img).attr('title') || '';
-          const value = parseInt(title.match(/\d+/)?.[0] || '0');
-          const lowerTitle = title.toLowerCase();
+        const mainSkills = allSkills.filter((s: string) =>
+          /Axe|Sword|Club|Distance|Magic|Shielding|Fishing/i.test(s),
+        );
 
-          if (lowerTitle.includes('magic')) skills.magic = value;
-          if (lowerTitle.includes('distance')) skills.distance = value;
-          if (lowerTitle.includes('sword')) skills.sword = value;
-          if (lowerTitle.includes('axe')) skills.axe = value;
-          if (lowerTitle.includes('club')) skills.club = value;
-          if (lowerTitle.includes('fist')) skills.fist = value;
-          if (lowerTitle.includes('shielding')) skills.shielding = value;
-        });
+        const extras = allSkills.filter(
+          (s: string) =>
+            !/Axe|Sword|Club|Distance|Magic|Shielding|Fishing/i.test(s),
+        );
 
-      if (skills.magic === 0 && skills.sword === 0) {
-        $(element)
-          .find('.AuctionUnitChart')
-          .each((_, chart) => {
-            const label = $(chart).find('.Label').text().toLowerCase();
-            const value = parseInt($(chart).find('.Value').text()) || 0;
-            if (label.includes('magic')) skills.magic = value;
-          });
-      }
+        return {
+          id: char.id,
+          name: String(char.name || 'Unknown'),
+          level: Number(char.level || 0),
+          vocation: String(char.vocation || 'None'),
+          world: String(char.world || 'Unknown'),
+          outfit_url: String(char.outfitUrl || char.outfit_url || ''),
+          price: Number(char.price || 0),
+          auction_end_relative:
+            auctionEnd > 0
+              ? new Date(auctionEnd * 1000).toLocaleString('pt-BR')
+              : 'N/A',
+          skills: mainSkills,
+          extras: extras,
+          items: Array.isArray(char.items) ? char.items : [],
+          auctionId: char.auctionId,
+        };
+      },
+    );
 
-      const headerText = $(element).find('.AuctionHeader').text();
-
-      auctions.push({
-        name,
-        level: parseInt(headerText.match(/Level:\s*(\d+)/)?.[1] || '0'),
-        vocation: headerText.match(/Vocation:\s*([^|]+)/)?.[1]?.trim() || 'Unknown',
-        world: headerText.match(/World:\s*([^|,\n]+)/)?.[1]?.trim() || 'Unknown',
-        price: parseInt($(element).find('.ShortAuctionDataValue b').text().replace(/,/g, '')) || 0,
-        outfit_url: $(element).find('.AuctionOutfitImage').attr('src') || '',
-        skills: skills,
-        auction_end_relative: $(element).find('.AuctionTimer').text().trim(),
-      });
-    });
-
-    return auctions;
+    return {
+      characters: mappedCharacters,
+      metadata: result.metadata || {
+        total: 0,
+        page: 1,
+        totalPages: 1,
+        hasMore: false,
+      },
+    };
   } catch (error) {
-    console.error('Erro no processamento:', error);
-    return [];
+    console.error('Erro no fetch do Bazaar:', error);
+    return {
+      characters: [],
+      metadata: { total: 0, page: 1, totalPages: 1, hasMore: false },
+    };
   }
 }
