@@ -48,7 +48,6 @@ Siga estas instruções para configurar o ambiente de desenvolvimento local.
 3. **Configuração das Variáveis de Ambiente:**
     Crie um arquivo .env na raiz do projeto (copie do modelo abaixo). Nunca commite o arquivo .env.
 
-    Snippet de código
     VITE_SUPABASE_URL=sua_url_do_supabase
     VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
 
