@@ -1,73 +1,74 @@
 # Tibia Scout 🛡️
 
-Um dashboard moderno para consulta de personagens e notícias do Tibia, integrado com Supabase para histórico de buscas em tempo real.
-
-## 🚀 Demonstração Online
-Acesse o projeto rodando em tempo real:
-**[https://tibia-scout-luizgustavolabs-projects.vercel.app](https://tibia-scout-luizgustavolabs-projects.vercel.app)**
-
-## 🚀 Como começar
-
-Siga estas instruções para configurar o projeto na sua máquina local.
-
-### Pré-requisitos
-
-Você vai precisar de:
-* [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/) (Versão 18 ou superior)
-* Um gerenciador de pacotes (NPM ou PNPM)
-
-### 🔧 Instalação
-
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/hericlessssss/lg.git](https://github.com/hericlessssss/lg.git)
-    ```
-
-2.  **Entre na pasta do projeto:**
-    ```bash
-    cd lg
-    ```
-
-3.  **Instale as dependências:**
-    ```bash
-    npm install
-    ```
-
-4.  **Inicie o servidor de desenvolvimento:**
-    ```bash
-    npm run dev
-    ```
-
-### 🔑 Configuração das Variáveis de Ambiente
-
-Para que o sistema funcione com o banco de dados e autenticação, você precisa configurar as chaves do Supabase:
-
-1. Na raiz do projeto, crie um arquivo chamado `.env.local`.
-2. Adicione as seguintes variáveis (você encontra esses valores no painel do seu projeto Supabase em *Settings > API*):
-
-```env
-VITE_SUPABASE_URL=sua_url_do_supabase
-VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+O **Tibia Scout** é um dashboard de alta performance desenvolvido para a comunidade tibiana. O projeto oferece consulta de personagens em tempo real, monitoramento de leilões do Bazaar, rastreamento do NPC Rashid, fases da lua (Grimvale) e calendário de eventos oficiais.
 
 ---
 
-## 🛠️ Padrão de Commits
+## 🚀 Status do Projeto e Deploy
 
-Este projeto utiliza o [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) para manter o histórico organizado.
+A interface (Frontend) está em produção e pode ser acessada via Vercel:
+🔗 **[https://tibia-scout.vercel.app](https://tibia-scout-luizgustavolabs-projects.vercel.app)**
 
-### Formato do Commit:
-`<tipo>: <descrição curta>`
+> **⚠️ Notas Importantes de Infraestrutura:**
+> - **Supabase:** No plano gratuito, o projeto é pausado após **7 dias** de inatividade. Caso o banco pare de responder, acesse o Dashboard do Supabase e clique em **"Restore Project"**.
+> - **Vercel:** Projetos inativos entram em modo de espera. O primeiro acesso após longo período pode apresentar um leve atraso (cold start).
+> - **Bazaar-API (Backend):** A funcionalidade de **Leilão/Bazaar** depende do deploy e execução do repositório `bazaar-api`. Sem este backend ativo, as consultas ao mercado não retornarão dados, pois o frontend não realiza o scraping pesado de leilões diretamente. 🔗 **[https://github.com/luizgustavolab/bazaar-api](https://github.com/luizgustavolab/bazaar-api)** 
 
-### Tipos Comuns:
-* `feat`: Adição de uma nova funcionalidade.
-* `fix`: Correção de um erro/bug.
-* `docs`: Alterações na documentação (ex: README).
-* `style`: Alterações de estilo ou formatação que não afetam o código.
-* `refactor`: Mudança no código que não corrige erro nem adiciona funcionalidade.
-* `chore`: Atualização de tarefas de build, pacotes ou ferramentas (ex: .gitignore).
+---
 
-### Exemplos:
-* `feat: add character search filters`
-* `fix: resolve iframe white screen flickering`
-* `docs: update setup instructions`
+## 🛠️ Tecnologias Utilizadas
+
+- **Frontend:** React + Vite (SPA de alta performance).
+- **Estilização:** Tailwind CSS com design Glassmorphism.
+- **Banco de Dados & Auth:** Supabase.
+- **Integração de Dados:** Axios + ScraperAPI (para busca de personagens).
+- **Processamento de Leilões:** Bazaar-API (Backend assíncrono via Node.js/Prisma).
+
+---
+
+## 🚀 Como Começar (Guia do Programador)
+
+Siga estas instruções para configurar o ambiente de desenvolvimento local.
+
+### 📋 Pré-requisitos
+
+- **Node.js:** Versão 18.0 ou superior.
+- **Git:** Instalado e configurado.
+- **Bazaar-API:** Deve estar rodando para que as funcionalidades de mercado funcionem.
+
+### 🔧 Instalação Passo a Passo
+
+1. **Clone o repositório:**
+   git clone [https://github.com/luizgustavolab/tibia-scout.git](https://github.com/luizgustavolab/tibia-scout.git)
+   cd tibia-scout
+
+2. **Instale as dependências:**
+    npm install
+
+3. **Configuração das Variáveis de Ambiente:**
+    Crie um arquivo .env na raiz do projeto (copie do modelo abaixo). Nunca commite o arquivo .env.
+
+    Snippet de código
+    VITE_SUPABASE_URL=sua_url_do_supabase
+    VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+
+4. **Inicie o servidor de desenvolvimento:**
+    npm run dev
+
+## 🏗️ Arquitetura e Decisões Técnicas
+- Foco em UX: A migração de Next.js para Vite foi estratégica para garantir uma Single Page Application veloz e responsiva.
+- Descentralização: A lógica de eventos (Lua e Rashid) é calculada localmente (UTC-6), reduzindo o custo operacional e a latência.
+- Segurança: O uso de ScraperAPI protege o IP do servidor/cliente contra bloqueios da CipSoft, enquanto o Supabase centraliza a persistência de históricos e favoritos de forma segura.
+
+## 🔄 Padrão de Commits
+- Utilizamos o padrão profissional para manter a governança do repositório:
+    feat: Nova funcionalidade.
+    fix: Correção de bug.
+    docs: Mudanças na documentação.
+    style: Ajustes visuais (CSS/Tailwind).
+    refactor: Refatoração de código sem mudar função.
+    chore: Atualização de dependências ou build.
+
+## 🛡️ Licença e Autoria
+- Projeto idealizado e desenvolvido por Luiz Gustavo 🔗 **[https://github.com/luizgustavolab](https://github.com/luizgustavolab)** .
+    Este é um projeto de código aberto. Sinta-se à vontade para contribuir respeitando os padrões estabelecidos e garantindo a integração correta com os serviços de backend.
