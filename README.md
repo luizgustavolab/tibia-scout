@@ -12,8 +12,9 @@ A interface (Frontend) está em produção e pode ser acessada via Vercel:
 > **⚠️ Notas Importantes de Infraestrutura:**
 > - **Supabase:** No plano gratuito, o projeto é pausado após **7 dias** de inatividade. Caso o banco pare de responder, acesse o Dashboard do Supabase e clique em **"Restore Project"**.
 > - **Vercel:** Projetos inativos entram em modo de espera. O primeiro acesso após longo período pode apresentar um leve atraso (cold start).
-> - **Bazaar-API (Backend):** A funcionalidade de **Leilão/Bazaar** depende do deploy e execução do repositório `bazaar-api`. Sem este backend ativo, as consultas ao mercado não retornarão dados, pois o frontend não realiza o scraping pesado de leilões diretamente. 🔗 **[https://github.com/luizgustavolab/bazaar-api](https://github.com/luizgustavolab/bazaar-api)** 
-
+> - **Bazaar-API (Backend):** A funcionalidade de **Leilão/Bazaar** depende do deploy e execução do repositório `bazaar-api`. Sem este backend ativo, as consultas ao mercado não retornarão dados, pois o frontend não realiza o scraping pesado de leilões diretamente. 
+🔗 **Configuração Railway [https://github.com/luizgustavolab/bazaar-api](https://github.com/luizgustavolab/bazaar-api)** 
+🔗 **Configuração DOCKER + Render [https://github.com/luizgustavolab/bazaar-api-docker](https://github.com/luizgustavolab/bazaar-api-docker)**
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -46,13 +47,31 @@ Siga estas instruções para configurar o ambiente de desenvolvimento local.
     npm install
 
 3. **Configuração das Variáveis de Ambiente:**
-    Crie um arquivo .env na raiz do projeto (copie do modelo abaixo). Nunca commite o arquivo .env.
+    Crie um arquivo .env na raiz do projeto (copie do modelo abaixo). `Nunca commite o arquivo .env.`
 
-    VITE_SUPABASE_URL=sua_url_do_supabase
-    VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+    VITE_SUPABASE_URL = URL do projeto no Supabase. 
+    VITE_SUPABASE_ANON_KEY = Chave anônima do Supabase. 
+    VITE_API_URL = URL da **Bazaar-API** no Render (ex: https://bazaar-api-docker.onrender.com) (ou RAILWAY, por exemplo).
 
 4. **Inicie o servidor de desenvolvimento:**
     npm run dev
+
+
+## 🌐 Configuração de Deploy (Vercel)
+
+Como o arquivo `.env` não é enviado para o repositório por questões de segurança, você deve configurar manualmente as variáveis de ambiente no `painel da Vercel` para que a aplicação funcione em produção.
+
+### Passo a Passo:
+1. Vá em **Project Settings** > **Environment Variables**.
+2. Adicione as seguintes chaves e valores:
+
+    VITE_SUPABASE_URL = URL do projeto no Supabase. 
+    VITE_SUPABASE_ANON_KEY = Chave anônima do Supabase. 
+    VITE_API_URL = URL da **Bazaar-API** no Render (ex: https://bazaar-api-docker.onrender.com) (ou RAILWAY, por exemplo)
+
+> **⚠️ Importante:** Após adicionar ou alterar qualquer variável na Vercel, é necessário realizar um **Redeploy** para que o Vite compile o código com os novos valores.
+
+---
 
 ## 🏗️ Arquitetura e Decisões Técnicas
 - Foco em UX: A migração de Next.js para Vite foi estratégica para garantir uma Single Page Application veloz e responsiva.
