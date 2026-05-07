@@ -1,5 +1,5 @@
-const RAILWAY_API_URL =
-  import.meta.env.VITE_API_URL || 'https://api-production-0422.up.railway.app';
+const RENDER_API_URL =
+  import.meta.env.VITE_API_URL || 'https://bazaar-api-docker.onrender.com';
 const TIBIADATA_API_URL = 'https://api.tibiadata.com/v4';
 
 export interface BazaarFilters {
@@ -89,26 +89,33 @@ export async function getTibiaBazaar(
     if (filters?.sort) params.append('sortBy', filters.sort);
     params.append('page', page.toString());
 
+    // Alterado para RENDER_API_URL e adicionado o prefixo /api
     const response = await fetch(
-      `${RAILWAY_API_URL}/characters?${params.toString()}`,
+      `${RENDER_API_URL}/api/characters?${params.toString()}`,
     );
+
     if (!response.ok) throw new Error('Falha ao buscar dados no Bazaar');
 
     const result = await response.json();
+
+    // O seu backend no Render devolve a lista dentro de result.data
     const rawCharacters = Array.isArray(result.data) ? result.data : [];
 
     const mappedCharacters: BazaarCharacter[] = rawCharacters.map(
       (char: any) => {
+        // Converte o endsAt (timestamp string) para número
         const auctionEnd = char.endsAt ? parseInt(char.endsAt) : 0;
         const allSkills = Array.isArray(char.skills) ? char.skills : [];
 
+        // Filtra skills principais para o display
         const mainSkills = allSkills.filter((s: string) =>
-          /Axe|Sword|Club|Distance|Magic|Shielding|Fishing/i.test(s),
+          /Axe|Sword|Club|Distance|Fist|Magic|Shielding|Fishing/i.test(s),
         );
 
+        // Filtra o que for extra (Store items, etc)
         const extras = allSkills.filter(
           (s: string) =>
-            !/Axe|Sword|Club|Distance|Magic|Shielding|Fishing/i.test(s),
+            !/Axe|Sword|Club|Distance|Fist|Magic|Shielding|Fishing/i.test(s),
         );
 
         return {
@@ -117,8 +124,10 @@ export async function getTibiaBazaar(
           level: Number(char.level || 0),
           vocation: String(char.vocation || 'None'),
           world: String(char.world || 'Unknown'),
-          outfit_url: String(char.outfitUrl || char.outfit_url || ''),
+
+          outfit_url: String(char.outfitUrl || ''),
           price: Number(char.price || 0),
+
           auction_end_relative:
             auctionEnd > 0
               ? new Date(auctionEnd * 1000).toLocaleString('pt-BR')
@@ -134,8 +143,8 @@ export async function getTibiaBazaar(
     return {
       characters: mappedCharacters,
       metadata: result.metadata || {
-        total: 0,
-        page: 1,
+        total: mappedCharacters.length,
+        page: page,
         totalPages: 1,
         hasMore: false,
       },

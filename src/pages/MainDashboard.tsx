@@ -177,11 +177,12 @@ const formatTibiaName = (text: string) => {
 function MainDashboard() {
   const navigate = useNavigate();
   const [charName, setCharName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTime, setLoadingTime] = useState(0);
   const [searchResult, setSearchResult] = useState<any | null>(null);
   const [history, setHistory] = useState<SearchHistory[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [news, setNews] = useState<any[]>([]);
   const [bazaar, setBazaar] = useState<any[]>([]);
@@ -309,15 +310,13 @@ function MainDashboard() {
     try {
       const apiData = await getCharacterData(nameToSearch);
       if (userId) {
-        await supabase
-          .from('search_history')
-          .insert([
-            {
-              query: nameToSearch,
-              user_id: userId,
-              status: apiData ? 'success' : 'not_found',
-            },
-          ]);
+        await supabase.from('search_history').insert([
+          {
+            query: nameToSearch,
+            user_id: userId,
+            status: apiData ? 'success' : 'not_found',
+          },
+        ]);
       }
       setSearchResult(apiData);
       setCharName('');
@@ -368,6 +367,26 @@ function MainDashboard() {
       await addFavorite(userId, name);
       setFavorites((prev) => [...prev, { char_name: name }]);
     }
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isLoading) {
+      timer = setInterval(() => {
+        setLoadingTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingTime(0);
+    }
+    return () => clearInterval(timer);
+  }, [isLoading]);
+
+  const getLoadingMessage = () => {
+    if (loadingTime >= 7)
+      return 'Você está acendendo o back.. logo, logo, você terá os dados aqui, CONFIA!';
+    if (loadingTime >= 3)
+      return 'Pelo visto o cron-job não quis trabalhar hoje, que folgado!';
+    return 'Consultando os Arquivos Reais...';
   };
 
   return (
@@ -433,8 +452,8 @@ function MainDashboard() {
               <div className="h-12 w-12 border-2 border-[#d4af37]/10 border-t-[#d4af37] rounded-full animate-spin"></div>
               <ScrollText className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#d4af37]/50 h-5 w-5 animate-pulse" />
             </div>
-            <p className="font-medieval text-[#d4af37] tracking-[0.3em] uppercase text-[9px] animate-pulse text-center">
-              Consultando os Arquivos Reais...
+            <p className="font-medieval text-[#d4af37] tracking-[0.3em] uppercase text-[14px] animate-pulse text-center">
+              {getLoadingMessage()}
             </p>
           </div>
         ) : (
