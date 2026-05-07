@@ -452,7 +452,7 @@ function MainDashboard() {
               <div className="h-12 w-12 border-2 border-[#d4af37]/10 border-t-[#d4af37] rounded-full animate-spin"></div>
               <ScrollText className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#d4af37]/50 h-5 w-5 animate-pulse" />
             </div>
-            <p className="font-medieval text-[#d4af37] tracking-[0.3em] uppercase text-[14px] animate-pulse text-center">
+            <p className="font-medieval text-[#d4af37] tracking-[0.3em] uppercase text-[12px] animate-pulse text-center">
               {getLoadingMessage()}
             </p>
           </div>
